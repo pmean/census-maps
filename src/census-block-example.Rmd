@@ -1,0 +1,62 @@
+---
+title: "Mapping census block groups"
+author: "Steve Simon"
+date: "Created on 2021-09-22"
+output: html_document
+---
+
+I will eventually want to move this and other programs to a new github site:
+
+https://gitub.com/sg4cd
+
+and to a private repository (Satya).
+
+```{r prelims}
+library(sf)
+library(tidyverse)
+```
+
+You can find shapefiles for census block groups at
+[the U.S. Census website](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html)
+
+The census files use a shapefile format. This is a rather complex system with at least three separate files constituting the shapefile. You can find a nice introduction at the
+[Wikipedia page on shapefiles](https://en.wikipedia.org/wiki/Shapefile).
+
+The st_read function is part of the sf library. It reads a shape file and converts it to an sf object. An sf (simple features object) is a data frame where the last column is a list-column, an sfc object.
+
+The list column represents geographic features either as a single data points (POINT), multiple data points (MULITPOINT), a two-dimensional path (LINESTRING), multiple paths (MULTILINESTRING), a polygon (POLYGON), or multiple polygons (MULTIPOLYGON).
+
+The POLYGON and MULTIPOLYGON features can include holes, and there are complex rules for geographic features with holes.
+
+```{r read}
+path_name <- "../data"
+list.files(path_name)
+```
+
+```{r read-2}
+file_name <- "tl_2020_29_tabblock20.shp"
+path_name                              %>%
+  paste(file_name, sep="/")            %>%
+  st_read(stringsAsFactors=FALSE)      -> all_census_blocks
+```
+
+The sf object looks and acts like an ordinary data frame. But the last column is quite unusual.
+
+```{r sf}
+names(all_census_blocks)
+head(all_census_blocks)
+```
+
+
+```{r built-in-tools}
+all_census_blocks                          %>%
+  filter(COUNTYFP20=="095") %>%
+  ggplot()                              +
+  geom_sf(aes())                 +
+  ggtitle("Test")
+```
+
+Save everything for possible later use.
+
+```{r save-everything}
+save.image("../data/census-block-example.RData")

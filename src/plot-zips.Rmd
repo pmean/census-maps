@@ -1,0 +1,59 @@
+---
+title: "Mapping zipcodes"
+author: "Steve Simon"
+date: "July 16, 2018"
+output: html_document
+---
+
+```{r prelims}
+library(sf)
+library(tidyverse)
+```
+
+You can find the shapefiles for zipcodes at 
+[the U.S Census website](https://www.census.gov/geo/maps-data/data/cbf/cbf_zcta.html).
+
+The census files use a shapefile format. This is a rather complex system with at least three separate files constituting the shapefile. You can find a nice introduction at the
+[Wikipedia page on shapefiles](https://en.wikipedia.org/wiki/Shapefile).
+
+The st_read function is part of the sf library. It reads a shape file and converts it to an sf object. An sf (simple features object) is a data frame where the last column is a list-column, an sfc object.
+
+The list column represents geographic features either as a single data points (POINT), multiple data points (MULITPOINT), a two-dimensional path (LINESTRING), multiple paths (MULTILINESTRING), a polygon (POLYGON), or multiple polygons (MULTIPOLYGON).
+
+The POLYGON and MULTIPOLYGON features can include holes, and there are complex rules for geographic features with holes.
+
+```{r read}
+path_name <- "../data"
+list.files(path_name)
+```
+
+```{r read-2}
+file_name <- "tl_2020_29_tract10.shp"
+path_name                              %>%
+  paste(file_name, sep="/")            %>%
+  st_read(stringsAsFactors=FALSE)      -> all_zipcodes
+```
+
+The sf object looks and acts like an ordinary data frame. But the last column is quite unusual.
+
+```{r sf}
+names(all_zipcodes)
+```
+
+WARNING!! The geom_sf function in ggplot2 is experimental and not yet part of the regular package (at least not at the time I wrote this, February 2018). You have to install a special version of ggplot2 using the RTools package. For details, go to
+
+https://dcl-2017-01.github.io/curriculum/notes/spatial-vis.html
+
+and note the installation instructions at the very top of the page.
+
+```{r built-in-tools}
+all_zipcodes                           %>%
+  ggplot()                              +
+  geom_sf(aes())                 +
+  ggtitle("Test")
+```
+
+Save everything for possible later use.
+
+```{r save-everything}
+save.image("~/zipcode-example/data/plot-zips.RData")
