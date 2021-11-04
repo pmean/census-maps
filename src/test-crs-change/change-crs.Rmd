@@ -1,0 +1,142 @@
+---
+title: "Change crs"
+author: "Steve Simon"
+date: "2021-11-04"
+output: html_document
+---
+
+```{r setup}
+library(shiny)
+library(sf)
+library(tidyverse)
+```
+
+```{r read}
+path_name <- "../../data"
+file_name <- "cb_2018_us_state_500k.shp"
+path_name                              %>%
+  paste(file_name, sep="/")            %>%
+  st_read(stringsAsFactors=FALSE)      -> us_states
+```
+
+# names(us_states)
+# 
+# "STATEFP"
+# "STATENS"
+# "AFFGEOID"
+# "GEOID"
+# "STUSPS"
+# "NAME"
+# "LSAD"
+# "ALAND"
+# "AWATER"
+# "geometry"
+
+```{r continental-us}
+us_states %>%
+  filter(NAME !="Puerto Rico") %>%
+  filter(NAME !="American Samoa") %>%
+  filter(NAME !="United States Virgin Islands") %>%
+  filter(NAME !="Guam") %>%
+  filter(NAME !="Commonwealth of the Northern Mariana Islands") %>%
+  filter(NAME !="Guam") %>%
+  filter(NAME !="Alaska") %>%
+  filter(NAME !="Hawaii") -> continental_us
+```
+
+```{r show-crs}
+crs_states <- st_crs(us_states)
+crs_states
+```
+
+```{r plot-us}
+ggplot(continental_us, aes()) +
+  geom_sf()
+```
+
+```{r plot-co}
+us_states %>%
+  filter(STATEFP=="08") -> co
+print.default(co$geometry)
+
+ggplot(co, aes()) + 
+  geom_sf()
+
+co %>%
+  st_transform(3857) -> co_3857
+print.default(co_3857$geometry)
+  
+ggplot(co_3857, aes()) + 
+  geom_sf()
+```
+
+
+```{r plot-nc}
+us_states %>%
+  filter(STATEFP==37) -> nc
+
+ggplot(nc, aes()) +
+  geom_sf()
+```
+
+```{r st_transform}
+st_crs(st_transform(nc, crs=2264))
+
+nc %>%
+  ggplot(aes()) +
+    geom_sf(crs=3785)
+nc %>%
+  ggplot(aes()) +
+    geom_sf(crs=4326)
+```
+
+```{r}
+nc <- nc
+nc_3857 <- sf::st_transform(nc, 3857)
+ggplot() +
+  geom_sf(data = nc) +
+  geom_sf(data = nc_3857, colour = "red", fill = NA)
+```
+
+```{r}
+nc %>%
+  st_transform(crs=4236) %>%
+  ggplot(aes()) +
+    geom_sf()
+nc %>%
+  st_transform(crs=32119) %>%
+  ggplot(aes()) +
+    geom_sf()
+nc %>%
+  st_transform(crs=2264) %>%
+  ggplot(aes()) +
+    geom_sf()
+```
+
+```{r read-neighborhoods}
+path_name <- "../../data"
+file_name <- "neighborhoods.shp"
+path_name                              %>%
+  paste(file_name, sep="/")            %>%
+  st_read(stringsAsFactors=FALSE)      -> neighborhoods
+neighborhoods %>%
+  st_transform(crs=st_crs(us_states)) -> nbd
+print.default(nbd$geometry[1])
+st_intersects(nbd[1, ], us_states, sparse=FALSE)
+st_contains(us_states, nbd[1, ], sparse=FALSE)
+```
+
+
+```{r save-everything}
+save(list=ls(), file="../../data/test-crs-change.RData")
+```
+
+### References
+
+Michael Corey. Choosing the Right Map Projection. Source, 2013-12-20. Available in [html format][cor1].
+
+Overview of Coordinate Reference Systems (CRS) in R. Available in [html format][crs1]
+
+
+[cor1]: https://source.opennews.org/articles/choosing-right-map-projection/
+[crs1]: https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf

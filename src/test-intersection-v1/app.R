@@ -143,8 +143,11 @@ path_name                              %>%
 
 crs_neighborhoods <- st_crs(neighborhoods)
 
-neighborhood_list <- 1:length(neighborhoods$AreaName)
-names(neighborhood_list) <- neighborhoods$AreaName[neighborhood_list]
+map_data <- neighborhoods[i, ]
+map_names <- neighborhood$AreaName
+map_number <- length(map_names)
+map_list <- 1:map_number
+names(map_list) <- map_names
 
 save(list=ls(), file="../../data/test-intersection.RData")
 
@@ -164,7 +167,7 @@ ui <- fluidPage(
       selectInput(
         "select",
         h3("Select box"),
-        choices=neighborhood_list),
+        choices=map_list),
       helpText("Insert diagnostic message here.")
       )
     )
@@ -178,9 +181,22 @@ server <- function(input, output) {
 
       i <- input$select
       
-      if (input$radio==1) map_data <- neighborhoods[i, ]
-      if (input$radio==2) map_data <- community_districts[i, ]
-
+      if (input$radio==1) {
+        map_data <- neighborhoods[i, ]
+        map_names <- neighborhood$AreaName
+        map_number <- length(map_names)
+        map_list <- 1:map_number
+        names(map_list) <- map_names
+      }
+      
+      if (input$radio==2) {
+        map_data <- community_districts[i, ]
+        map_names <- community_districts$CD_NAME
+        map_number <- length(map_names)
+        map_list <- 1:map_number
+        names(map_list) <- map_names
+      }
+      
       if (input$radio==1) lb <- paste(neighborhoods[i, "AreaName"], "Neighborhood")
       if (input$radio==2) lb <- paste(community_districts[i, "CD_NAME"], "Community district")
 
