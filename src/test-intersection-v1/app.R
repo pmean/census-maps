@@ -122,6 +122,9 @@ path_name                              %>%
 #    "geometry" 
 
 crs_community_districts <- st_crs(community_districts)
+community_districts %>%
+  st_transform(crs=st_crs(mo_tracts)) -> cd
+
 
 file_name <- "Neighborhoods.shp"
 path_name                              %>%
@@ -143,8 +146,12 @@ path_name                              %>%
 
 crs_neighborhoods <- st_crs(neighborhoods)
 
-map_data <- neighborhoods[i, ]
-map_names <- neighborhood$AreaName
+neighborhoods %>%
+  st_transform(crs=st_crs(mo_tracts)) -> nbd
+
+
+map_data <- neighborhoods
+map_names <- neighborhoods$AreaName
 map_number <- length(map_names)
 map_list <- 1:map_number
 names(map_list) <- map_names
@@ -159,11 +166,29 @@ ui <- fluidPage(
     mainPanel(plotOutput("distPlot")), 
     sidebarPanel(
       radioButtons(
-        "radio", 
-         h3("Radio buttons"), 
+        "radio1", 
+         h3("Display"), 
          choices = list(
            "Neighborhoods" = 1, 
            "Community districts" = 2)),
+      radioButtons(
+        "radio2", 
+        h3("Subdivisions"), 
+        choices = list(
+          "Blocks" = 1, 
+          "Block groups" = 2,
+          "Tracts" = 3,
+          "ZCTAs" = 4)),
+      radioButtons(
+        "radio3", 
+        h3("Relationship"), 
+        choices = list(
+          "Intersects" = 1, 
+          "Contains" = 2,
+          "Covers" = 3,
+          "Covered_by" = 4,
+          "Overlaps" = 5,
+          "Touches" = 6)),
       selectInput(
         "select",
         h3("Select box"),
@@ -181,36 +206,53 @@ server <- function(input, output) {
 
       i <- input$select
       
-      if (input$radio==1) {
-        map_data <- neighborhoods[i, ]
-        map_names <- neighborhood$AreaName
+      if (input$radio1==1) {
+        map_data <- nbd[i, ]
+        map_names <- nbd$AreaName
         map_number <- length(map_names)
         map_list <- 1:map_number
         names(map_list) <- map_names
       }
       
-      if (input$radio==2) {
-        map_data <- community_districts[i, ]
-        map_names <- community_districts$CD_NAME
+      if (input$radio1==2) {
+        map_data <- cd[i, ]
+        map_names <- cd$CD_NAME
         map_number <- length(map_names)
         map_list <- 1:map_number
         names(map_list) <- map_names
       }
       
-      if (input$radio==1) lb <- paste(neighborhoods[i, "AreaName"], "Neighborhood")
-      if (input$radio==2) lb <- paste(community_districts[i, "CD_NAME"], "Community district")
-
-      # contained_blocks <- st_contains(map_data, jackson_co_census_blocks, sparse=FALSE)
-      # intersect_blocks <- st_intersects(map_data, jackson_co_census_blocks, sparse=FALSE)
-      # touching_blocks <- st_touches(map_data, jackson_co_census_blocks, sparse=FALSE)
-      # partial_blocks <- intersect_blocks & (!contained_blocks) & (!touching_blocks)
-
-      map_data %>%
-        # bind_rows(jackson_co_census_blocks[contained_blocks, ]) %>%
-          ggplot()                              +
-          geom_sf(aes())                 +
-          ggtitle(paste("Map of", lb))
+      if (input$radio1==1) lb <- paste(neighborhoods[i, "AreaName"], "Neighborhood")
+      if (input$radio1==2) lb <- paste(community_districts[i, "CD_NAME"], "Community district")
       
+      if (input$radio2==1) {
+        subdivision <- jackson_co_census_blocks
+        lb <- paste(lb, "divided by census blocks")
+      }
+      if (input$radio2==2) {
+        subdivision <- jackson_co_block_groups
+        lb <- paste(lb, "divided by census blocks groups")
+      }
+      if (input$radio2==3) {
+        subdivision <- jackson_co_tracts
+        lb <- paste(lb, "divided by census tracts")
+      }
+      if (input$radio2==4) {
+        subdivision <- z641
+        lb <- paste(lb, "divided by zip code tabulation areas")
+      }
+      if (input$radio3==1) sub <- st_intersects(map_data, subdivision, sparse=FALSE)
+      if (input$radio3==2) sub <- st_contains(map_data, subdivision, sparse=FALSE)
+      if (input$radio3==3) sub <- st_covers(map_data, subdivision, sparse=FALSE)
+      if (input$radio3==4) sub <- st_covered_by(map_data, subdivision, sparse=FALSE)
+      if (input$radio3==5) sub <- st_overlaps(map_data, subdivision, sparse=FALSE)
+      if (input$radio3==6) sub <- st_touches(map_data, subdivision, sparse=FALSE)
+      
+      ggplot(data=map_data, aes()) +
+        geom_sf(fill="lightgreen", col="darkgreen") +
+        geom_sf(data=subdivision[sub, ], fill="pink", col="darkred") +
+        geom_sf(data=map_data, fill=NA, col="black", size=2) +
+        ggtitle(paste("Map of", lb))
     }
   )
 }
