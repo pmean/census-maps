@@ -11,6 +11,8 @@ For each community district and for each neighborhood, this program will find wh
 
 The program will then attach total population and total housing units to these census shapefiles using the 2020 Census redistricting files.
 
+Finally, this program will read data from the American Community Survey, download information from the Census website, and re-allocate values to individual community districts and neighhorhoods.
+
 ### General information
 
 The starting point for downloading most Census shapefiles is [here][c_general]. The ftp site is a bit more difficult to navigate, but leads you directly to the files that you want. 
@@ -19,7 +21,7 @@ It helps to know the FIPS (Federal Information Processing System) codes for Kans
 
 ### US counties shapefiles
 
-There is a [single file][c_counties] of counties for all of the United States. Use the st_read function from the sf package to read in the data. You may need to convert the coordinate reference system. That uses the st_crs function, also of the sf package. Counties are uniquely identified by a two digit state FIPS code and a three digit county FIPS code. These are combined into a five digit code, GEOID.
+There is a [single file][c_counties] of counties for all of the United States. Use the st_read function from the [sf package][r_sf] to read in the data. You may need to convert the coordinate reference system. That uses the st_crs function, also of the sf package. Counties are uniquely identified by a two digit state FIPS code and a three digit county FIPS code. These are combined into a five digit code, GEOID.
 
 The important counties for this program are
 
@@ -71,7 +73,15 @@ Again, each neighborhood will reside in a single county. The various functions d
 
 The Census redistricting files are found in a [different location][c_redistricting] on the Census website. You may wish to review the [Census help videos][c_help] on redistricting. There are separate redistricting files for [Kansas][c_redistricting_ks] and [Missouri][c_redistricting_mo]. The Census Bureau provides [R code][c_r_code] for reading these files.
 
+### American Community survey
+
+This work will take advantage of the read_acs library.
+
 <!---Key census links go here--->
+
+[r_sf]: https://r-spatial.github.io/sf/
+
+[r read_acs]: https://cran.r-project.org/package=acs
 
 [c_general]: https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html
 
