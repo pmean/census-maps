@@ -1,0 +1,100 @@
+---
+title: "Identify-intersections"
+author: "Satya Golla and Steve Simon"
+date: "11/17/2021"
+output: html_document
+---
+
+This program will read in census shapefiles for counties, public use microdata areas, census tracts, census block groups, census blocks, and zip code tabulation areas. Then it will compare them to the shapefiles for community districts and neighborhoods.
+
+For each community district and for each neighborhood, this program will find which counties, census tracts, etc. intersect. In some cases a single census shapefile will contain the entire community district or neighborhood. In addition, the program will compute the area of each census shapefile and what percentage of that area lies inside or outside the community district or neighborhood.
+
+The program will then attach total population and total housing units to these census shapefiles using the 2020 Census redistricting files.
+
+Finally, this program will read data from the American Community Survey, download information from the Census website, and re-allocate values to individual community districts and neighhorhoods.
+
+### General information
+
+The starting point for downloading most Census shapefiles is [here][c_general]. The ftp site is a bit more difficult to navigate, but leads you directly to the files that you want. 
+
+It helps to know the FIPS (Federal Information Processing System) codes for Kansas (20) and Missouri (29).
+
+### US counties shapefiles
+
+There is a [single file][c_counties] of counties for all of the United States. Use the st_read function from the [sf package][r_sf] to read in the data. You may need to convert the coordinate reference system. That uses the st_crs function, also of the sf package. Counties are uniquely identified by a two digit state FIPS code and a three digit county FIPS code. These are combined into a five digit code, GEOID.
+
+The important counties for this program are
+
+Cass County, MO (29037)
+Clay County, MO (29047)
+Jackson County, MO (29095)
+Johnson County, KS (20091)
+Leavenworth County, KS
+Miami County, KS 
+Wyandotte County, KS
+
+### Public Use Microdata Areas (PUMA)
+
+A PUMA is a region within a state that contains no less than 100,000 people. There are files for PUMAs for [Kansas][c_puma_ks] and [Missouri][c_puma_mo]. The various functions described in the US counties shapefiles section will be used here.
+
+### Census tracts
+
+A Census tract is a region usually within a single county that contains roughly 4,000 people. There are files for census tracts for [Kansas][c_tract_ks] and [Missouri][c_tract_mo].  The various functions described in the US counties shapefiles section will be used here.
+
+### etc.
+
+### Community districts
+
+This shapefile, Community_District, was provided by Neal Wilson. The various functions described in the US counties shapefiles section will be used here.
+
+### Neighborhoods
+
+This shapefile, Neighborhoods, was provided by Neal Wilson. The various functions described in the US counties shapefiles section will be used here.
+
+### Calculate intersections
+
+#### Intersection of counties with community districts
+
+Each community district will reside entirely inside a single county, and it is obvious to anyone familiar with the Kansas City metropolitan area which county is would be, so this is done mostly for the sake of continuity and completeness.
+
+It is important that both the counties and the community districts use a common coordinate reference system. It is uncelar WHICH coordinate reference system is best, but this is controlled by the st_crs function of the sf package.
+
+The st_intersections function will evaluate to TRUE if two shapefiles intersect. The st_area function will give the area of a shapefile and the st_intersection function will produce a new shapefile from the intersection of two shapefiles.
+
+#### Intersection of counties with neighborhoods
+
+Again, each neighborhood will reside in a single county. The various functions described in the intersection of counties with community districts section will be used here. 
+
+#### Intersection of PUMAs with community districts
+
+#### etc.
+
+### Census redistricting files
+
+The Census redistricting files are found in a [different location][c_redistricting] on the Census website. You may wish to review the [Census help videos][c_help] on redistricting. There are separate redistricting files for [Kansas][c_redistricting_ks] and [Missouri][c_redistricting_mo]. The Census Bureau provides [R code][c_r_code] for reading these files.
+
+### American Community survey
+
+This work will take advantage of the read_acs library.
+
+<!---Key census links go here--->
+
+[r_sf]: https://r-spatial.github.io/sf/
+
+[r read_acs]: https://cran.r-project.org/package=acs
+
+[c_general]: https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html
+
+[c_counties]: https://www2.census.gov/geo/tiger/TIGER2021/COUNTY/tl_2021_us_county.zip
+
+[c_tract_ks]: https://www2.census.gov/geo/tiger/TIGER2021/TRACT/tl_2021_20_tract.zip
+[c_tract_mo]: https://www2.census.gov/geo/tiger/TIGER2021/TRACT/tl_2021_29_tract.zip
+
+[c_redistricting]: https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html
+
+[c_help]: https://www.census.gov/data/academy/courses/2020-census-redistricting-data.html
+
+[c_redistricting_ks]: https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Kansas/ks2020.pl.zip
+[c_redistricting_mo]: https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Missouri/mo2020.pl.zip
+
+[c_r_code]: https://www2.census.gov/programs-surveys/decennial/rdo/about/2020-census-program/Phase3/SupportMaterials/2020PL_R_import_scripts.zip
