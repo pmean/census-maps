@@ -8,7 +8,7 @@ library(shiny)
 library(sf)
 library(tidyverse)
 
-path_name <- "../../data"
+path_name <- "../data"
 
 file_name <- "tl_2020_29_tract.shp"
 path_name                              %>%
@@ -156,7 +156,7 @@ map_number <- length(map_names)
 map_list <- 1:map_number
 names(map_list) <- map_names
 
-save(list=ls(), file="../../data/test-intersection.RData")
+save(list=ls(), file="../data/test-intersection.RData")
 
 ui <- fluidPage(
 
