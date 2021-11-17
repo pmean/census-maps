@@ -59,7 +59,7 @@ Each community district will reside entirely inside a single county, and it is o
 
 It is important that both the counties and the community districts use a common coordinate reference system. It is uncelar WHICH coordinate reference system is best, but this is controlled by the st_crs function of the sf package.
 
-The st_intersections function will evaluate to TRUE if two shapefiles intersect. The st_area function will give the area of a shapefile and the st_intersection function will produce a new shapefile from the intersection of two shapefiles.
+The st_intersects function will evaluate to TRUE if two shapefiles intersect. The st_area function will give the area of a shapefile and the st_intersection function will produce a new shapefile from the intersection of two shapefiles.
 
 #### Intersection of counties with neighborhoods
 
@@ -75,7 +75,7 @@ The Census redistricting files are found in a [different location][c_redistricti
 
 ### American Community survey
 
-This work will take advantage of the read_acs library.
+This work will take advantage of the acs library.
 
 <!---Key census links go here--->
 

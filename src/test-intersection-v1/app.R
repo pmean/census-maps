@@ -1,4 +1,4 @@
-# Test shiny app, v5
+# Test intersection v1
 # Written by Steve Simon
 # Created on 2021-10-20
 # Purpose: to test some simple maps in Shiny
