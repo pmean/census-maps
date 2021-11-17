@@ -11,7 +11,7 @@ For each community district and for each neighborhood, this program will find wh
 
 The program will then attach total population and total housing units to these census shapefiles using the 2020 Census redistricting files.
 
-Finally, this program will read data from the American Community Survey, download information from the Census website, and re-allocate values to individual community districts and neighhorhoods.
+Finally, this program will read data from the American Community Survey, download information from the Census website, and re-allocate values to individual community districts and neighborhoods.
 
 ### General information
 
@@ -32,6 +32,10 @@ Johnson County, KS (20091)
 Leavenworth County, KS
 Miami County, KS 
 Wyandotte County, KS
+
+```{r read-counties-file}
+# insert your R code here.
+```
 
 ### Public Use Microdata Areas (PUMA)
 
